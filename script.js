@@ -39,14 +39,64 @@ function createNewTest(projectName, productName) {
     testDiv.innerHTML = `
         <h5>Test ${testNumber} de ${productName}</h5>
         <input type="date" id="test-date-${projectName}-${productName}-${testNumber}" />
-        <input type="file" id="excel-file-${projectName}-${productName}-${testNumber}" />
+        <input type="file" id="excel-file-${projectName}-${productName}-${testNumber}" onchange="processExcelFile('${projectName}', '${productName}', ${testNumber})" />
         <input type="file" id="photo1-${projectName}-${productName}-${testNumber}" />
         <input type="file" id="photo2-${projectName}-${productName}-${testNumber}" />
         <input type="file" id="video-${projectName}-${productName}-${testNumber}" />
         <input type="text" id="test-notes-${projectName}-${productName}-${testNumber}" placeholder="Notas del test" />
         <button onclick="generatePDF('${projectName}', '${productName}', ${testNumber})">Generar Reporte PDF</button>
+        
+        <div>
+            <strong>Máximo Displacement: </strong><span id="max-displacement-${projectName}-${productName}-${testNumber}">N/A</span><br>
+            <strong>Máximo Load: </strong><span id="max-load-${projectName}-${productName}-${testNumber}">N/A</span>
+        </div>
     `;
     testContainer.appendChild(testDiv);
+}
+
+
+// Función para leer los datos del archivo Excel y obtener el valor máximo de displacement y load
+function processExcelFile(projectName, productName, testNumber) {
+    const excelFile = document.getElementById(`excel-file-${projectName}-${productName}-${testNumber}`).files[0];
+
+    if (excelFile) {
+        const reader = new FileReader();
+        
+        // Cuando el archivo Excel se cargue
+        reader.onload = function(e) {
+            const data = e.target.result;
+            const workbook = XLSX.read(data, { type: "binary" });
+
+            // Suponemos que los datos de displacement y load están en la primera hoja
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // Convertimos la hoja en un objeto JSON
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            let maxDisplacement = 0;
+            let maxLoad = 0;
+
+            // Iterar sobre las filas para encontrar los máximos de displacement y load
+            jsonData.forEach(row => {
+                const displacement = row["Displacement (inches)"];
+                const load = row["Load (lbs)"];
+
+                if (displacement > maxDisplacement) {
+                    maxDisplacement = displacement;
+                }
+                if (load > maxLoad) {
+                    maxLoad = load;
+                }
+            });
+
+            // Actualizamos la interfaz con los valores máximos de displacement y load
+            document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText = maxDisplacement + " in";
+            document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText = maxLoad + " lbs";
+        };
+
+        // Leemos el archivo como binario
+        reader.readAsBinaryString(excelFile);
+    }
 }
 
 // Función para generar el PDF con los datos del test
@@ -61,21 +111,27 @@ function generatePDF(projectName, productName, testNumber) {
     const video = document.getElementById(`video-${projectName}-${productName}-${testNumber}`).files[0];
     const testNotes = document.getElementById(`test-notes-${projectName}-${productName}-${testNumber}`).value;
 
+    // Obtener los valores máximos de displacement y load
+    const maxDisplacement = document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText;
+    const maxLoad = document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText;
+
     // Aquí agregaríamos los datos del archivo Excel, las fotos y el video (esto es un ejemplo simple)
     doc.text(`Reporte de Test: ${productName}`, 10, 10);
     doc.text(`Proyecto: ${projectName}`, 10, 20);
     doc.text(`Test No: ${testNumber}`, 10, 30);
     doc.text(`Notas: ${testNotes}`, 10, 40);
+    doc.text(`Máximo Displacement: ${maxDisplacement}`, 10, 50);
+    doc.text(`Máximo Load: ${maxLoad}`, 10, 60);
 
     // Mostrar imágenes (de las fotos seleccionadas, por ejemplo)
     if (photo1) {
         const photo1URL = URL.createObjectURL(photo1);
-        doc.addImage(photo1URL, 'JPEG', 10, 50, 50, 50);
+        doc.addImage(photo1URL, 'JPEG', 10, 70, 50, 50);
     }
 
     if (photo2) {
         const photo2URL = URL.createObjectURL(photo2);
-        doc.addImage(photo2URL, 'JPEG', 70, 50, 50, 50);
+        doc.addImage(photo2URL, 'JPEG', 70, 70, 50, 50);
     }
 
     // Generar el PDF
@@ -84,6 +140,7 @@ function generatePDF(projectName, productName, testNumber) {
     // Actualizar la tabla con los resultados del test
     updateSummaryTable(projectName, productName, testNumber);
 }
+
 
 // Función para actualizar la tabla de resumen con los resultados
 function updateSummaryTable(projectName, productName, testNumber) {
