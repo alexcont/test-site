@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Test de Productos</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Librería para gráficas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script> <!-- Para leer archivos Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Para generar PDFs -->
+</head>
+<body>
+    <header>
+        <h1>Portal de Test de Productos</h1>
+    </header>
+    <main>
+        <section id="projects">
+            <h2>Proyectos</h2>
+            <button onclick="createNewProject()">+ Crear nuevo proyecto</button>
+            <div id="project-list">
+                <!-- Aquí se listarán los proyectos -->
+            </div>
+        </section>
+
+        <section id="summary">
+            <h2>Resumen General de Test</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Test No.</th>
+                        <th>Fecha</th>
+                        <th>Resultado</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí se listarán los productos, tests, resultados y promedios -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>
