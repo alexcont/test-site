@@ -86,7 +86,6 @@ function generatePDF(projectName, productName, testNumber) {
 }
 
 // Función para actualizar la tabla de resumen con los resultados
-// Función para actualizar la tabla de resumen con los resultados
 function updateSummaryTable(projectName, productName, testNumber) {
     const testDate = document.getElementById(`test-date-${projectName}-${productName}-${testNumber}`).value;
     const testNotes = document.getElementById(`test-notes-${projectName}-${productName}-${testNumber}`).value;
