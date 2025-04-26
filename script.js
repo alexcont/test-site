@@ -46,9 +46,7 @@ function createNewTest(projectName, productName) {
         <input type="file" id="video-${projectName}-${productName}-${testNumber}" />
         <input type="text" id="test-notes-${projectName}-${productName}-${testNumber}" placeholder="Notas del test" />
         <input type="file" accept=".csv" onchange="processCSVFile('proyectoX', 'productoY', 1)">
-
-
-        <button onclick="generatePDF('${projectName}', '${productName}', ${testNumber})">Generar Reporte PDF</button>
+   
         <button onclick="exportTestToPDF('miProyecto', 'miProducto', 1)">📄 Exportar PDF</button>
 
         <div>
