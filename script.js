@@ -60,48 +60,72 @@ function createNewTest(projectName, productName) {
 
 
 // Función para leer los datos del archivo Excel y obtener el valor máximo de displacement y load
-function processExcelFile(projectName, productName, testNumber) {
-    const excelFile = document.getElementById(`excel-file-${projectName}-${productName}-${testNumber}`).files[0];
+function processCSVFile(projectName, productName, testNumber) {
+    const fileInput = document.getElementById(`excel-file-${projectName}-${productName}-${testNumber}`);
+    const file = fileInput.files[0];
 
-    if (excelFile) {
-        const reader = new FileReader();
-        
-        // Cuando el archivo Excel se cargue
-        reader.onload = function(e) {
-            const data = e.target.result;
-            const workbook = XLSX.read(data, { type: "binary" });
+    if (!file) return;
 
-            // Suponemos que los datos de displacement y load están en la primera hoja
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
+        const headers = lines[0].split(",").map(h => h.trim());
 
-            // Convertimos la hoja en un objeto JSON
-            const jsonData = XLSX.utils.sheet_to_json(sheet);
+        const dispIndex = headers.findIndex(h => h.toLowerCase().includes("displacement"));
+        const loadIndex = headers.findIndex(h => h.toLowerCase().includes("load"));
 
-            let maxDisplacement = 0;
-            let maxLoad = 0;
+        if (dispIndex === -1 || loadIndex === -1) {
+            alert("El archivo CSV debe tener columnas 'Displacement' y 'Load'.");
+            return;
+        }
 
-            // Iterar sobre las filas para encontrar los máximos de displacement y load
-            jsonData.forEach(row => {
-                const displacement = row["Displacement (inches)"];
-                const load = row["Load (lbs)"];
+        const displacement = [];
+        const load = [];
 
-                if (displacement > maxDisplacement) {
-                    maxDisplacement = displacement;
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(",").map(val => parseFloat(val.trim()));
+            displacement.push(row[dispIndex]);
+            load.push(row[loadIndex]);
+        }
+
+        const maxDisp = Math.max(...displacement);
+        const maxLoad = Math.max(...load);
+
+        document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText = maxDisp.toFixed(2) + " in";
+        document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText = maxLoad.toFixed(2) + " lbs";
+
+        // Dibujar gráfica
+        const ctx = document.getElementById(`chart-${projectName}-${productName}-${testNumber}`).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: displacement,
+                datasets: [{
+                    label: 'Load vs Displacement',
+                    data: load,
+                    borderColor: 'green',
+                    backgroundColor: 'lightgreen',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Displacement (in)' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Load (lbs)' }
+                    }
                 }
-                if (load > maxLoad) {
-                    maxLoad = load;
-                }
-            });
+            }
+        });
+    };
 
-            // Actualizamos la interfaz con los valores máximos de displacement y load
-            document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText = maxDisplacement + " in";
-            document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText = maxLoad + " lbs";
-        };
-
-        // Leemos el archivo como binario
-        reader.readAsBinaryString(excelFile);
-    }
+    reader.readAsText(file); // Lee como texto plano (CSV)
 }
+
 
 // Función para generar el PDF con los datos del test
 function generatePDF(projectName, productName, testNumber) {
