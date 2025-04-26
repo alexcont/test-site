@@ -59,23 +59,23 @@ function createNewTest(projectName, productName) {
 
 
 // Función para leer los datos del archivo Excel y obtener el valor máximo de displacement y load
-function processCSVFile(projectName, productName, testNumber) {
-    const fileInput = document.getElementById(`excel-file-${projectName}-${productName}-${testNumber}`);
-    const file = fileInput.files[0];
+const charts = {}; // Almacena instancias para reiniciar si es necesario
 
+function processCSVFile(project, product, test) {
+    const input = document.getElementById(`excel-file-${project}-${product}-${test}`);
+    const file = input.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.trim().split("\n");
-        const headers = lines[0].split(",").map(h => h.trim());
+    reader.onload = function (e) {
+        const lines = e.target.result.trim().split("\n");
+        const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
 
-        const dispIndex = headers.findIndex(h => h.toLowerCase().includes("displacement"));
-        const loadIndex = headers.findIndex(h => h.toLowerCase().includes("load"));
+        const dispIdx = headers.findIndex(h => h.includes("displacement"));
+        const loadIdx = headers.findIndex(h => h.includes("load"));
 
-        if (dispIndex === -1 || loadIndex === -1) {
-            alert("El archivo CSV debe tener columnas 'Displacement' y 'Load'.");
+        if (dispIdx === -1 || loadIdx === -1) {
+            alert("CSV debe incluir columnas 'Displacement' y 'Load'");
             return;
         }
 
@@ -83,46 +83,48 @@ function processCSVFile(projectName, productName, testNumber) {
         const load = [];
 
         for (let i = 1; i < lines.length; i++) {
-            const row = lines[i].split(",").map(val => parseFloat(val.trim()));
-            displacement.push(row[dispIndex]);
-            load.push(row[loadIndex]);
+            const cols = lines[i].split(",").map(c => parseFloat(c.trim()));
+            displacement.push(cols[dispIdx]);
+            load.push(cols[loadIdx]);
         }
 
-        const maxDisp = Math.max(...displacement);
-        const maxLoad = Math.max(...load);
+        const maxDisp = Math.max(...displacement).toFixed(2);
+        const maxLoad = Math.max(...load).toFixed(2);
 
-        document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText = maxDisp.toFixed(2) + " in";
-        document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText = maxLoad.toFixed(2) + " lbs";
+        document.getElementById(`max-displacement-${project}-${product}-${test}`).innerText = `${maxDisp} in`;
+        document.getElementById(`max-load-${project}-${product}-${test}`).innerText = `${maxLoad} lbs`;
 
-        // Dibujar gráfica
-        const ctx = document.getElementById(`chart-${projectName}-${productName}-${testNumber}`).getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
+        const canvasId = `chart-${project}-${product}-${test}`;
+        const ctx = document.getElementById(canvasId).getContext("2d");
+
+        // Si ya hay una gráfica previa, destruirla
+        if (charts[canvasId]) {
+            charts[canvasId].destroy();
+        }
+
+        // Crear nueva gráfica
+        charts[canvasId] = new Chart(ctx, {
+            type: "line",
             data: {
                 labels: displacement,
                 datasets: [{
-                    label: 'Load vs Displacement',
+                    label: "Load vs Displacement",
                     data: load,
-                    borderColor: 'green',
-                    backgroundColor: 'lightgreen',
+                    borderColor: "blue",
+                    backgroundColor: "lightblue",
                     fill: false
                 }]
             },
             options: {
                 responsive: true,
                 scales: {
-                    x: {
-                        title: { display: true, text: 'Displacement (in)' }
-                    },
-                    y: {
-                        title: { display: true, text: 'Load (lbs)' }
-                    }
+                    x: { title: { display: true, text: "Displacement (in)" }},
+                    y: { title: { display: true, text: "Load (lbs)" }}
                 }
             }
         });
     };
-
-    reader.readAsText(file); // Lee como texto plano (CSV)
+    reader.readAsText(file);
 }
 
 
