@@ -167,3 +167,59 @@ function viewTestDetails(projectName, productName, testNumber) {
     alert(`Ver detalles del Test ${testNumber} de ${productName} en el Proyecto: ${projectName}`);
 }
 
+function processExcelFile(projectName, productName, testNumber) {
+    const excelFile = document.getElementById(`excel-file-${projectName}-${productName}-${testNumber}`).files[0];
+
+    if (excelFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = e.target.result;
+            const workbook = XLSX.read(data, { type: "binary" });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            let displacement = [];
+            let load = [];
+
+            jsonData.forEach(row => {
+                displacement.push(row["Displacement (inches)"]);
+                load.push(row["Load (lbs)"]);
+            });
+
+            // Calcular máximos
+            const maxDisp = Math.max(...displacement);
+            const maxLoad = Math.max(...load);
+
+            document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText = maxDisp + " in";
+            document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText = maxLoad + " lbs";
+
+            // Dibujar gráfico
+            const ctx = document.getElementById(`chart-${projectName}-${productName}-${testNumber}`).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: displacement,
+                    datasets: [{
+                        label: 'Load vs Displacement',
+                        data: load,
+                        borderColor: 'blue',
+                        backgroundColor: 'lightblue',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Displacement (in)' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Load (lbs)' }
+                        }
+                    }
+                }
+            });
+        };
+        reader.readAsBinaryString(excelFile);
+    }
+}
