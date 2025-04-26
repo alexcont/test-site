@@ -1,18 +1,19 @@
 // Función para crear un nuevo proyecto
 function createNewProject() {
-    const projectName = prompt("Ingresa el nombre del nuevo proyecto:");
-    if (projectName) {
-        const projectContainer = document.getElementById("project-list");
-        const projectDiv = document.createElement("div");
-        projectDiv.classList.add("project");
-        projectDiv.innerHTML = `
-            <h3>${projectName}</h3>
-            <button onclick="createNewProduct('${projectName}')">+ Agregar producto</button>
-            <div id="products-${projectName}"></div>
-        `;
-        projectContainer.appendChild(projectDiv);
-    }
+    const projectName = prompt("Nombre del nuevo proyecto:");
+    if (!projectName) return;
+
+    const projectSection = document.createElement("div");
+    projectSection.classList.add("project-folder");
+    projectSection.innerHTML = `
+        <h2>${projectName}</h2>
+        <button onclick="createNewProduct('${projectName}')">➕ Agregar Producto</button>
+        <div id="products-${projectName}" class="product-list"></div>
+        <hr>
+    `;
+    document.getElementById("project-list").appendChild(projectSection);
 }
+
 
 // Función para crear un nuevo producto dentro de un proyecto
 function createNewProject() {
