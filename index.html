@@ -2,48 +2,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Test de Productos</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Librería para gráficas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script> <!-- Para leer archivos Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Para generar PDFs -->
+    <title>Gestor de Tests</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script defer src="script.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .project, .product, .test { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; }
+        button { margin: 0.3rem; }
+        canvas { margin-top: 1rem; }
+    </style>
 </head>
-    
 <body>
-    <header>
-        <h1>Portal de Test de Productos</h1>
-    </header>
-    <main>
-        <section id="projects">
-            <h2>Proyectos</h2>
-            <button onclick="createNewProject()">📁 Crear Proyecto</button>
-            <div id="project-list">
-                <!-- Aquí se listarán los proyectos -->
-            </div>
-        </section>
 
-        <section id="summary">
-            <h2>Resumen General de Test</h2>
-            <table id="summary-table">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Test No.</th>
-                        <th>Fecha</th>
-                        <th>Resultado</th>
-                        <th>Notas</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Aquí se listarán los productos, tests, resultados y promedios -->
-                </tbody>
-            </table>
-        </section>
-    </main>
+    <h1>📁 Proyectos de Test</h1>
+    <button onclick="createNewProject()">➕ Nuevo Proyecto</button>
 
-    <script src="script.js"></script>
+    <div id="project-list"></div>
+
 </body>
 </html>
