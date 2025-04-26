@@ -49,7 +49,8 @@ function createNewTest(projectName, productName) {
 
 
         <button onclick="generatePDF('${projectName}', '${productName}', ${testNumber})">Generar Reporte PDF</button>
-        
+        <button onclick="exportTestToPDF('miProyecto', 'miProducto', 1)">📄 Exportar PDF</button>
+
         <div>
             <strong>Máximo Displacement: </strong><span id="max-displacement-${projectName}-${productName}-${testNumber}">N/A</span><br>
             <strong>Máximo Load: </strong><span id="max-load-${projectName}-${productName}-${testNumber}">N/A</span>
@@ -128,46 +129,29 @@ function processCSVFile(projectName, productName, testNumber) {
 
 
 // Función para generar el PDF con los datos del test
-function generatePDF(projectName, productName, testNumber) {
+async function exportTestToPDF(projectName, productName, testNumber) {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const pdf = new jsPDF();
 
-    // Obtener los archivos seleccionados
-    const excelFile = document.getElementById(`excel-file-${projectName}-${productName}-${testNumber}`).files[0];
-    const photo1 = document.getElementById(`photo1-${projectName}-${productName}-${testNumber}`).files[0];
-    const photo2 = document.getElementById(`photo2-${projectName}-${productName}-${testNumber}`).files[0];
-    const video = document.getElementById(`video-${projectName}-${productName}-${testNumber}`).files[0];
-    const testNotes = document.getElementById(`test-notes-${projectName}-${productName}-${testNumber}`).value;
+    const testInfo = document.getElementById(`test-info-${projectName}-${productName}-${testNumber}`);
+    const canvas = document.getElementById(`chart-${projectName}-${productName}-${testNumber}`);
 
-    // Obtener los valores máximos de displacement y load
-    const maxDisplacement = document.getElementById(`max-displacement-${projectName}-${productName}-${testNumber}`).innerText;
-    const maxLoad = document.getElementById(`max-load-${projectName}-${productName}-${testNumber}`).innerText;
+    // Capturar texto del test
+    const resultText = testInfo.innerText;
 
-    // Aquí agregaríamos los datos del archivo Excel, las fotos y el video (esto es un ejemplo simple)
-    doc.text(`Reporte de Test: ${productName}`, 10, 10);
-    doc.text(`Proyecto: ${projectName}`, 10, 20);
-    doc.text(`Test No: ${testNumber}`, 10, 30);
-    doc.text(`Notas: ${testNotes}`, 10, 40);
-    doc.text(`Máximo Displacement: ${maxDisplacement}`, 10, 50);
-    doc.text(`Máximo Load: ${maxLoad}`, 10, 60);
+    // Capturar imagen de la gráfica
+    const chartImage = await html2canvas(canvas).then(canvas => canvas.toDataURL("image/png"));
 
-    // Mostrar imágenes (de las fotos seleccionadas, por ejemplo)
-    if (photo1) {
-        const photo1URL = URL.createObjectURL(photo1);
-        doc.addImage(photo1URL, 'JPEG', 10, 70, 50, 50);
-    }
+    // Agregar texto al PDF
+    const lines = pdf.splitTextToSize(resultText, 180);
+    pdf.text(lines, 10, 10);
 
-    if (photo2) {
-        const photo2URL = URL.createObjectURL(photo2);
-        doc.addImage(photo2URL, 'JPEG', 70, 70, 50, 50);
-    }
+    // Agregar la gráfica al PDF (después del texto)
+    pdf.addImage(chartImage, 'PNG', 10, 50, 180, 90);
 
-    // Generar el PDF
-    doc.save(`${projectName}_${productName}_Test_Report_${testNumber}.pdf`);
-
-    // Actualizar la tabla con los resultados del test
-    updateSummaryTable(projectName, productName, testNumber);
+    pdf.save(`${projectName}_${productName}_Test${testNumber}.pdf`);
 }
+
 
 
 // Función para actualizar la tabla de resumen con los resultados
