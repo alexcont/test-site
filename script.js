@@ -16,19 +16,19 @@ function createNewProject() {
 
 
 // Función para crear un nuevo producto dentro de un proyecto
-function createNewProject() {
-    const projectName = prompt("Nombre del nuevo proyecto:");
-    if (!projectName) return;
-
-    const projectSection = document.createElement("div");
-    projectSection.classList.add("project-folder");
-    projectSection.innerHTML = `
-        <h2>${projectName}</h2>
-        <button onclick="createNewProduct('${projectName}')">➕ Agregar Producto</button>
-        <div id="products-${projectName}" class="product-list"></div>
-        <hr>
-    `;
-    document.getElementById("project-list").appendChild(projectSection);
+function createNewProduct(projectName) {
+    const productName = prompt(`Ingresa el nombre del producto para el proyecto: ${projectName}`);
+    if (productName) {
+        const productContainer = document.getElementById(`products-${projectName}`);
+        const productDiv = document.createElement("div");
+        productDiv.classList.add("product");
+        productDiv.innerHTML = `
+            <h4>${productName}</h4>
+            <button onclick="createNewTest('${projectName}', '${productName}')">+ Agregar test</button>
+            <div id="tests-${projectName}-${productName}"></div>
+        `;
+        productContainer.appendChild(productDiv);
+    }
 }
 
 // Función para crear un nuevo test dentro de un producto
