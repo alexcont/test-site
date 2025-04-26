@@ -45,7 +45,8 @@ function createNewTest(projectName, productName) {
         <input type="file" id="photo2-${projectName}-${productName}-${testNumber}" />
         <input type="file" id="video-${projectName}-${productName}-${testNumber}" />
         <input type="text" id="test-notes-${projectName}-${productName}-${testNumber}" placeholder="Notas del test" />
-        <canvas id="chart-${projectName}-${productName}-${testNumber}" width="400" height="200"></canvas>
+        <input type="file" accept=".csv" onchange="processCSVFile('proyectoX', 'productoY', 1)">
+
 
         <button onclick="generatePDF('${projectName}', '${productName}', ${testNumber})">Generar Reporte PDF</button>
         
